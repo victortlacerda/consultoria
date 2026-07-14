@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1565C0">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CheckFund">
 <title>CheckFund — Fundações Profundas</title>
@@ -575,13 +576,7 @@ function showView(name, btn) {
   if(btn) btn.classList.add('active');
   const subs={home:'Registros da Obra',records:'Todos os Registros',export:'Exportar Dados'};
   document.getElementById('header-sub').textContent=subs[name]||'';
-  if(name==='home') // Start at projects screen
-G('projects-screen').classList.add('show');
-G('main-header').style.display='none';
-document.querySelector('.bottom-nav').style.display='none';
-document.querySelector('.main').style.display='none';
-renderProjects();
-updNet();
+  if(name==='home') renderHome();
   if(name==='records') renderRecords();
   if(name==='export') renderExport();
 }
@@ -590,14 +585,18 @@ function projRecords() {
   return curProject ? records.filter(r=>r.projectId===curProject.id) : [];
 }
 
-function goToProjects() {
-  curProject = null;
+function showProjectsScreen() {
   G('projects-screen').classList.add('show');
-  G('main-header').style.display='none';
   G('main-header').style.display='none';
   document.querySelector('.bottom-nav').style.display='none';
   document.querySelector('.main').style.display='none';
   renderProjects();
+  updNet();
+}
+
+function goToProjects() {
+  curProject = null;
+  showProjectsScreen();
 }
 
 function enterProject(id) {
@@ -728,12 +727,6 @@ function buildForm(type) {
       </div>
     </div></div>`;
 
-  const solo=`<div class="fsec"><div class="fsec-hdr brown"><span>🌍</span> Check Inicial de Solo</div>
-    <div class="fsec-body">
-      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
-      ${cf('Solo compatível com a sondagem','f-solo')}
-    </div></div>`;
-
   const obs=`<div class="fsec"><div class="fsec-hdr gray"><span>📝</span> Observações Gerais</div>
     <div class="fsec-body">
       <textarea id="f-obs" placeholder="Observações, intercorrências, anotações de campo..."></textarea>
@@ -748,7 +741,6 @@ function buildForm(type) {
   else if(type==='metalico') specific=formMetalico();
   else if(type==='trilho') specific=formTrilho();
 
-  // Solo is injected inside specific after the geometry section (see each form)
   return ident+specific+obs;
 }
 
@@ -846,12 +838,6 @@ function formTubulao() {
       ${cf('Ventilação adequada','f-vent')}
       ${cf('Iluminação adequada','f-ilum')}
       ${cf('Escada de acesso em bom estado','f-escada')}
-    </div></div>
-
-  <div class="fsec"><div class="fsec-hdr brown"><span class="section-icon">🌍</span> Check Inicial de Solo</div>
-    <div class="fsec-body">
-      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
-      ${cf('Solo compatível com a sondagem (material e cota)','f-solo')}
     </div></div>
 
   <div class="fsec"><div class="fsec-hdr blue"><span>🧱</span> Concretagem</div>
@@ -1008,8 +994,6 @@ function formTrilho() {
   ${_cravCom()}`;
 }
 
-// updateModels removed — each type has dedicated form
-
 function calcSC() {
   const teo=parseFloat(gv('f-vteo'))||0;
   const comp=parseFloat(gv('f-vcomp'))||0;
@@ -1153,13 +1137,9 @@ function closeModal(){G('detail-modal').classList.remove('show')}
 function delRecord(id) {
   if(!confirm('Excluir este registro permanentemente?'))return;
   records=records.filter(r=>r.id!==id);
-  save(); closeModal(); // Start at projects screen
-G('projects-screen').classList.add('show');
-G('main-header').style.display='none';
-document.querySelector('.bottom-nav').style.display='none';
-document.querySelector('.main').style.display='none';
-renderProjects();
-updNet(); showToast('🗑️ Registro excluído');
+  save(); closeModal();
+  renderHome();
+  showToast('🗑️ Registro excluído');
 }
 
 /* ═══════════════════════════════════════
@@ -1252,13 +1232,10 @@ function clearAll() {
   const pid=curProject?curProject.id:null;
   if(pid) records=records.filter(r=>r.projectId!==pid);
   else records=[];
-  save();// Start at projects screen
-G('projects-screen').classList.add('show');
-G('main-header').style.display='none';
-document.querySelector('.bottom-nav').style.display='none';
-document.querySelector('.main').style.display='none';
-renderProjects();
-updNet();renderExport();showToast('🗑️ Dados da obra apagados');
+  save();
+  renderHome();
+  renderExport();
+  showToast('🗑️ Dados da obra apagados');
 }
 
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
@@ -1308,7 +1285,7 @@ self.addEventListener('fetch',e=>{
 /* PWA Manifest */
 const mf={name:"CheckFund – Fundações Profundas",short_name:"CheckFund",
   description:"Checklist para controle executivo de fundações profundas",
-  start_url:"./",display:"standalone",background_color:"#E3F2FD",theme_color:"#1565C0",
+  start_url:".",display:"standalone",background_color:"#E3F2FD",theme_color:"#1565C0",
   icons:[{src:"data:image/png;base64,iVBORw0KGgo=",sizes:"192x192",type:"image/png"}]};
 G('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
 
@@ -1431,8 +1408,6 @@ function deleteProject(id) {
 function tqNav(e, row, col) {
   if (e.key !== 'Enter') return;
   e.preventDefault();
-  // From torque col → go to pressure same row
-  // From pressure col → go to torque next row
   let nextId;
   if (col === 'tq') {
     nextId = 'f-pr-' + row;
@@ -1448,13 +1423,7 @@ function tqNav(e, row, col) {
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
-// Start at projects screen
-G('projects-screen').classList.add('show');
-G('main-header').style.display='none';
-document.querySelector('.bottom-nav').style.display='none';
-document.querySelector('.main').style.display='none';
-renderProjects();
-updNet();
+showProjectsScreen();
 </script>
 </body>
 </html>
