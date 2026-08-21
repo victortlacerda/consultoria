@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1565C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CheckFund">
+<title>CheckFund — Fundações Profundas</title>
+<link rel="manifest" id="manifest-link">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --b900:#0D47A1; --b800:#1565C0; --b700:#1976D2; --b600:#1E88E5;
+  --b500:#2196F3; --b400:#42A5F5; --b300:#90CAF9; --b200:#BBDEFB; --b100:#BBDEFB; --b50:#E3F2FD;
+  --white:#FFFFFF; --g50:#F8FAFF; --g100:#F1F5F9; --g200:#E2E8F0;
+  --g400:#94A3B8; --g600:#475569; --g800:#1E293B;
+  --green:#2E7D32; --green-l:#E8F5E9; --red:#C62828; --red-l:#FFEBEE;
+  --amber:#F57F17; --amber-l:#FFFDE7; --purple:#6A1B9A; --teal:#00695C;
+  --r:12px; --rs:8px;
+  --sh:0 2px 12px rgba(21,101,192,.12); --sh-lg:0 8px 32px rgba(21,101,192,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g50);color:var(--g800);min-height:100vh}
+
+/* ── HEADER ── */
+.app-header{background:linear-gradient(135deg,var(--b900),var(--b700));color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.header-inner{display:flex;align-items:center;padding:12px 16px;gap:12px}
+.header-logo{width:38px;height:38px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.header-text h1{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.header-text p{font-size:11px;opacity:.75;margin-top:1px}
+.header-text{flex:1}
+.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-on{background:#66BB6A}.dot-off{background:#FFB300}
+
+/* ── OFFLINE BANNER ── */
+.offline-banner{background:var(--amber);color:#fff;text-align:center;padding:7px 16px;font-size:12px;font-weight:700;display:none}
+.offline-banner.show{display:block}
+
+/* ── NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g200);display:flex;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.07)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 12px;cursor:pointer;border:none;background:none;color:var(--g400);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:color .2s;gap:3px;font-family:inherit}
+.nav-item .ni{font-size:22px;line-height:1}
+.nav-item.active{color:var(--b700)}
+.nav-item.active .ni-home::after{content:''}
+
+/* ── MAIN ── */
+.main{padding:16px;padding-bottom:80px;max-width:620px;margin:0 auto}
+.view{display:none}.view.active{display:block}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px}
+.card-header{background:var(--b50);border-bottom:2px solid var(--b100);padding:11px 16px;display:flex;align-items:center;gap:10px}
+.card-icon{font-size:18px}
+.card-header h3{font-size:13px;font-weight:800;color:var(--b800);text-transform:uppercase;letter-spacing:.5px}
+.card-body{padding:16px}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--g400);margin:20px 0 10px}
+
+/* ── STATS ── */
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
+.stat{background:#fff;border-radius:var(--rs);padding:13px 8px;text-align:center;box-shadow:var(--sh);border-top:3px solid var(--b200)}
+.stat-v{font-size:26px;font-weight:800;color:var(--b700);line-height:1}
+.stat-l{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:700}
+
+/* ── PILE GRID ── */
+.pile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.pile-card{background:#fff;border:2px solid var(--g200);border-radius:var(--r);padding:16px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;transition:all .2s;box-shadow:var(--sh)}
+.pile-card:hover,.pile-card:active{border-color:var(--b500);background:var(--b50);transform:translateY(-2px);box-shadow:var(--sh-lg)}
+.pile-card .pi{font-size:34px}
+.pile-card .pn{font-size:13px;font-weight:800;color:var(--g800);line-height:1.2}
+.pile-card .pd{font-size:11px;color:var(--g400);line-height:1.3}
+
+/* ── RECORD ITEM ── */
+.record-item{background:#fff;border-radius:var(--r);padding:13px 15px;margin-bottom:8px;box-shadow:var(--sh);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;border:2px solid transparent}
+.record-item:hover{border-color:var(--b300);transform:translateY(-1px);box-shadow:var(--sh-lg)}
+.rec-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--b50);flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-title{font-size:14px;font-weight:700;color:var(--g800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-meta{font-size:12px;color:var(--g400);margin-top:2px}
+.rec-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.badge{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.b-hc{background:var(--b50);color:var(--b800)}
+.b-tubulao{background:#F3E5F5;color:var(--purple)}
+.b-trado{background:var(--green-l);color:var(--green)}
+.b-raiz{background:var(--amber-l);color:var(--amber)}
+.b-cravada{background:#FCE4EC;color:#880E4F}
+.b-premoldada{background:#FFF3E0;color:#E65100}
+.b-metalico{background:#ECEFF1;color:#37474F}
+.b-trilho{background:#F3E5F5;color:#6A1B9A}
+.nc-badge{font-size:10px;color:var(--red);font-weight:800}
+.edited-badge{font-size:10px;color:var(--g400);font-weight:700}
+
+/* ── FORM SECTIONS ── */
+.fsec{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.fsec-hdr{color:#fff;padding:11px 16px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.fsec-hdr.blue{background:var(--b800)}
+.fsec-hdr.brown{background:#5D4037}
+.fsec-hdr.red{background:#B71C1C}
+.fsec-hdr.green{background:#1B5E20}
+.fsec-hdr.gray{background:var(--g600)}
+.fsec-hdr.purple{background:var(--purple)}
+.fsec-hdr.teal{background:var(--teal)}
+.fsec-body{padding:16px;display:flex;flex-direction:column;gap:13px}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup label{font-size:11px;font-weight:800;color:var(--g600);text-transform:uppercase;letter-spacing:.3px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+input[type=text],input[type=number],input[type=date],select,textarea{border:2px solid var(--g200);border-radius:var(--rs);padding:10px 12px;font-size:15px;color:var(--g800);font-family:inherit;transition:border-color .2s,box-shadow .2s;background:#fff;width:100%;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--b500);box-shadow:0 0 0 3px rgba(33,150,243,.1)}
+input[readonly]{background:var(--g100);color:var(--g600)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394A3B8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+
+/* ── CONFORM BUTTONS ── */
+.cgroup{display:flex;flex-direction:column;gap:5px}
+.clabel{font-size:11px;font-weight:800;color:var(--g600);text-transform:uppercase;letter-spacing:.3px}
+.cbtns{display:flex;gap:8px}
+.cbtn{flex:1;padding:12px 6px;border:2px solid var(--g200);border-radius:var(--rs);font-size:13px;font-weight:800;cursor:pointer;background:#fff;transition:all .15s;text-transform:uppercase;letter-spacing:.3px;font-family:inherit}
+.cbtn.ok{border-color:var(--green);background:var(--green-l);color:var(--green)}
+.cbtn.nc{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.cbtn:not(.ok):not(.nc):hover{border-color:var(--g400);background:var(--g100)}
+
+/* ── TORQUE TABLE ── */
+.tbl-scroll{overflow-x:auto;border-radius:var(--rs);border:1px solid var(--g200)}
+.torque-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.torque-tbl th{background:var(--b50);color:var(--b800);padding:8px;text-align:center;font-weight:800;font-size:11px;text-transform:uppercase;border-bottom:2px solid var(--b100)}
+.torque-tbl td{padding:3px;border-bottom:1px solid var(--g100)}
+.torque-tbl td:first-child{text-align:center;font-weight:800;color:var(--b700);background:var(--b50);width:44px;font-size:12px}
+.torque-tbl input{padding:6px 8px;font-size:14px;border-radius:6px}
+
+/* ── CALC DISPLAY ── */
+.calc-box{background:var(--b50);border:2px solid var(--b200);border-radius:var(--rs);padding:10px;text-align:center}
+.calc-val{font-size:22px;font-weight:800;color:var(--b800)}
+.calc-lbl{font-size:10px;color:var(--b600);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* ── BUTTONS ── */
+.btn{padding:14px 20px;border:none;border-radius:var(--rs);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:inherit;text-transform:uppercase;letter-spacing:.5px}
+.btn-primary{background:var(--b700);color:#fff;width:100%;box-shadow:0 4px 14px rgba(25,118,210,.3)}
+.btn-primary:hover{background:var(--b800)}
+.btn-secondary{background:#fff;color:var(--b700);border:2px solid var(--b300);flex:1}
+.btn-danger{background:var(--red);color:#fff;padding:10px 14px;font-size:13px;flex:1}
+.btn-success{background:var(--green);color:#fff;width:100%}
+.btn-row{display:flex;gap:10px;margin-top:6px}
+
+/* ── EDIT BANNER ── */
+.edit-banner{background:var(--amber-l);border:2px solid #FFE082;border-radius:var(--rs);padding:11px 14px;font-size:13px;color:#8D6E00;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:12px;line-height:1.4}
+
+/* ── PHOTO ── */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.photo-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--g100)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.rm-photo{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.add-photo{aspect-ratio:1;border:2px dashed var(--b300);border-radius:8px;background:var(--b50);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;color:var(--b500);font-size:11px;font-weight:800}
+.add-photo span:first-child{font-size:24px}
+
+/* ── SEARCH & CHIPS ── */
+.search-bar{background:#fff;border:2px solid var(--g200);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.search-bar input{border:none;padding:0;font-size:15px;flex:1;background:none}
+.search-bar input:focus{outline:none;box-shadow:none;border:none}
+.chips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;border:2px solid var(--g200);background:#fff;color:var(--g600);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip.active{border-color:var(--b500);background:var(--b50);color:var(--b700)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--r) var(--r) 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:32px}
+.modal-hdr{background:linear-gradient(135deg,var(--b900),var(--b700));color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1}
+.modal-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px;line-height:1}
+.modal-body{padding:20px}
+
+/* ── DETAIL FIELDS ── */
+.dfield{display:flex;padding:10px 0;border-bottom:1px solid var(--g100);gap:10px}
+.dfield:last-child{border-bottom:none}
+.dkey{font-size:11px;color:var(--g400);font-weight:800;text-transform:uppercase;letter-spacing:.3px;min-width:130px;flex-shrink:0}
+.dval{font-size:14px;color:var(--g800);font-weight:500;line-height:1.4}
+.dval.ok{color:var(--green);font-weight:800}
+.dval.nc{color:var(--red);font-weight:800}
+
+/* ── EXPORT ── */
+.exp-opt{background:#fff;border:2px solid var(--g200);border-radius:var(--r);padding:15px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.exp-opt:hover{border-color:var(--b300);background:var(--b50)}
+.exp-icon{font-size:30px;flex-shrink:0}
+.exp-info h4{font-size:14px;font-weight:800;color:var(--g800)}
+.exp-info p{font-size:12px;color:var(--g400);margin-top:2px}
+.exp-info{flex:1}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--g800);color:#fff;padding:11px 20px;border-radius:24px;font-size:14px;font-weight:700;z-index:1000;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 24px;color:var(--g400)}
+.empty-icon{font-size:54px;margin-bottom:14px}
+.empty-title{font-size:17px;font-weight:700;color:var(--g600);margin-bottom:6px}
+.empty-desc{font-size:14px;line-height:1.5}
+
+/* ── INFO BANNER ── */
+.info-banner{background:var(--b50);border:1px solid var(--b200);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--b800);display:flex;align-items:flex-start;gap:8px;line-height:1.4}
+
+/* ── DANGER ZONE ── */
+.danger-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin:24px 0 10px;display:flex;align-items:center;gap:6px}
+
+
+/* ── PROJECTS SCREEN ── */
+.projects-screen{position:fixed;inset:0;background:var(--g50);z-index:300;display:none;flex-direction:column;overflow:hidden}
+.projects-screen.show{display:flex}
+.proj-header{background:linear-gradient(135deg,var(--b900),var(--b700));color:#fff;padding:0;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.proj-header-inner{display:flex;align-items:center;padding:14px 16px;gap:12px}
+.proj-logo{font-size:28px}
+.proj-title{flex:1}
+.proj-title h1{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.proj-title p{font-size:12px;opacity:.75;margin-top:2px}
+.proj-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px}
+.proj-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative}
+.proj-card:hover{border-color:var(--b300);transform:translateY(-2px);box-shadow:var(--sh-lg)}
+.proj-card-body{padding:16px}
+.proj-card-top{display:flex;align-items:flex-start;gap:12px}
+.proj-card-icon{width:46px;height:46px;border-radius:10px;background:var(--b50);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.proj-card-info{flex:1;min-width:0}
+.proj-card-name{font-size:16px;font-weight:800;color:var(--g800);line-height:1.2;margin-bottom:3px}
+.proj-card-cliente{font-size:13px;color:var(--g600);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj-card-meta{font-size:11px;color:var(--g400);display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.proj-card-stat{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)}
+.proj-stat-item{flex:1;text-align:center;padding:6px 4px;background:var(--g50);border-radius:var(--rs)}
+.proj-stat-v{font-size:18px;font-weight:800;color:var(--b700);line-height:1}
+.proj-stat-l{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;font-weight:700}
+.proj-card-actions{display:flex;gap:6px;position:absolute;top:12px;right:12px}
+.proj-action-btn{background:rgba(0,0,0,.04);border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .15s}
+.proj-action-btn:hover{background:rgba(0,0,0,.1)}
+.status-tag{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.status-andamento{background:#E3F2FD;color:#1565C0}
+.status-concluida{background:#E8F5E9;color:#2E7D32}
+.status-suspensa{background:#FFF8E1;color:#F57F17}
+.proj-fab{position:fixed;bottom:24px;right:16px;width:56px;height:56px;background:var(--b700);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(25,118,210,.4);display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:310}
+.proj-fab:hover{background:var(--b800);transform:scale(1.05)}
+/* ── BACK BUTTON IN HEADER ── */
+.back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:background .2s;flex-shrink:0}
+.back-btn:hover{background:rgba(255,255,255,.25)}
+.proj-context-banner{background:var(--b900);color:#fff;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.proj-context-name{font-weight:800;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.proj-context-type{opacity:.65;font-size:11px;flex-shrink:0}
+/* ── PROJECT FORM MODAL ── */
+.proj-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-end}
+.proj-modal-overlay.show{display:flex}
+.proj-modal{background:#fff;border-radius:var(--r) var(--r) 0 0;width:100%;max-height:92vh;overflow-y:auto;padding-bottom:32px}
+.proj-modal-hdr{background:linear-gradient(135deg,var(--b900),var(--b700));color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1}
+
+/* ── RESPONSIVE ── */
+@media(min-width:480px){
+  .pile-grid{grid-template-columns:1fr 1fr 1fr}
+  .stats-bar{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+
+<!-- PROJECTS SCREEN -->
+<div class="projects-screen show" id="projects-screen">
+  <div class="proj-header">
+    <div class="proj-header-inner">
+      <div class="proj-logo">🏗️</div>
+      <div class="proj-title">
+        <h1>CheckFund</h1>
+        <p>Consultoria de Fundações Profundas</p>
+      </div>
+      <div class="status-pill" style="background:rgba(255,255,255,.12)">
+        <span class="dot dot-on" id="proj-sdot"></span>
+        <span id="proj-stxt">Online</span>
+      </div>
+    </div>
+  </div>
+  <div class="proj-body">
+    <p class="section-label" style="margin-top:4px">Obras / Empreendimentos</p>
+    <div id="proj-list"></div>
+  </div>
+  <button class="proj-fab" onclick="openProjForm()">＋</button>
+</div>
+
+<!-- PROJECT FORM MODAL -->
+<div class="proj-modal-overlay" id="proj-modal">
+  <div class="proj-modal">
+    <div class="proj-modal-hdr">
+      <div style="font-size:16px;font-weight:800" id="proj-modal-title">Nova Obra</div>
+      <button class="modal-close" onclick="closeProjForm()">✕</button>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:13px">
+      <div class="fgroup"><label>Nome da Obra *</label><input type="text" id="pf-nome" placeholder="ex: Residencial Parque das Flores"></div>
+      <div class="fgroup"><label>Cliente / Contratante</label><input type="text" id="pf-cliente" placeholder="ex: Construtora ABC Ltda."></div>
+      <div class="frow">
+        <div class="fgroup"><label>Tipo de Obra</label>
+          <select id="pf-tipo">
+            <option value="">Selecionar...</option>
+            <option>Edifício Residencial</option>
+            <option>Edifício Comercial</option>
+            <option>Galpão / Industrial</option>
+            <option>Ponte / Viaduto</option>
+            <option>Muro de Contenção</option>
+            <option>Torre / Silo</option>
+            <option>Infraestrutura</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Status</label>
+          <select id="pf-status">
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Concluída">Concluída</option>
+            <option value="Suspensa">Suspensa</option>
+          </select>
+        </div>
+      </div>
+      <div class="fgroup"><label>Local / Endereço</label><input type="text" id="pf-local" placeholder="ex: Rua X, 100 — Belo Horizonte/MG"></div>
+      <div class="frow">
+        <div class="fgroup"><label>Responsável Técnico</label><input type="text" id="pf-rt" placeholder="Nome do RT"></div>
+        <div class="fgroup"><label>Nº ART / RRT</label><input type="text" id="pf-art" placeholder="000000000"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Data de Início</label><input type="date" id="pf-inicio"></div>
+        <div class="fgroup"><label>Data de Término Prev.</label><input type="date" id="pf-termino"></div>
+      </div>
+      <div class="fgroup"><label>Observações</label><textarea id="pf-obs" placeholder="Informações adicionais sobre a obra..." style="min-height:70px"></textarea></div>
+      <input type="hidden" id="pf-edit-id">
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="closeProjForm()">Cancelar</button>
+        <button class="btn btn-primary" style="flex:2" onclick="saveProjForm()">💾 Salvar Obra</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="offline-banner" id="offline-banner">⚠️ Sem conexão — os dados estão sendo salvos localmente</div>
+
+<!-- HEADER -->
+<div class="app-header" id="main-header" style="display:none">
+  <div class="header-inner">
+    <button class="back-btn" onclick="goToProjects()">← Obras</button>
+    <div class="header-text">
+      <h1 id="header-proj-name" style="font-size:15px">—</h1>
+      <p id="header-sub" style="font-size:10px">Fundações Profundas</p>
+    </div>
+    <div class="status-pill">
+      <span class="dot dot-on" id="sdot"></span>
+      <span id="stxt">Online</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-v" id="st-total">0</div>
+        <div class="stat-l">Total</div>
+      </div>
+      <div class="stat" style="border-top-color:var(--green)">
+        <div class="stat-v" id="st-hoje" style="color:var(--green)">0</div>
+        <div class="stat-l">Hoje</div>
+      </div>
+      <div class="stat" style="border-top-color:var(--red)">
+        <div class="stat-v" id="st-nc" style="color:var(--red)">0</div>
+        <div class="stat-l">N. Conf.</div>
+      </div>
+    </div>
+
+    <p class="section-label">Novo Registro</p>
+    <div class="pile-grid">
+      <div class="pile-card" onclick="startForm('helice')">
+        <span class="pi">🌀</span>
+        <span class="pn">Hélice Contínua</span>
+        <span class="pd">HC Monitorada</span>
+      </div>
+      <div class="pile-card" onclick="startForm('tubulao')">
+        <span class="pi">🕳️</span>
+        <span class="pn">Tubulão</span>
+        <span class="pd">A céu aberto / ar comprimido</span>
+      </div>
+      <div class="pile-card" onclick="startForm('trado')">
+        <span class="pi">⚙️</span>
+        <span class="pn">Trado Mecanizado</span>
+        <span class="pd">Perfuração rotativa</span>
+      </div>
+      <div class="pile-card" onclick="startForm('raiz')">
+        <span class="pi">🌿</span>
+        <span class="pn">Estaca Raiz</span>
+        <span class="pd">Injeção de calda</span>
+      </div>
+      <div class="pile-card" onclick="startForm('premoldada')">
+        <span class="pi">🟫</span>
+        <span class="pn">Pré-Moldada</span>
+        <span class="pd">Concreto armado / protendido</span>
+      </div>
+      <div class="pile-card" onclick="startForm('metalico')">
+        <span class="pi">⚒️</span>
+        <span class="pn">Perfil Metálico</span>
+        <span class="pd">Perfis HP / W</span>
+      </div>
+      <div class="pile-card" onclick="startForm('trilho')" style="grid-column:span 2">
+        <span class="pi">🛤️</span>
+        <span class="pn">Trilho Ferroviário</span>
+        <span class="pd">Perfis TR / CR / A</span>
+      </div>
+    </div>
+
+    <p class="section-label">Registros Recentes</p>
+    <div id="recent-list"></div>
+  </div>
+
+  <!-- RECORDS -->
+  <div class="view" id="view-records">
+    <div class="search-bar">
+      <span style="font-size:18px;color:var(--g400)">🔍</span>
+      <input type="text" id="search-inp" placeholder="Buscar por torre, estaca, executor..." oninput="renderRecords()">
+    </div>
+    <div class="chips" id="filter-chips">
+      <div class="chip active" onclick="setFilter('all',this)">Todos</div>
+      <div class="chip" onclick="setFilter('helice',this)">🌀 Hélice</div>
+      <div class="chip" onclick="setFilter('tubulao',this)">🕳️ Tubulão</div>
+      <div class="chip" onclick="setFilter('trado',this)">⚙️ Trado</div>
+      <div class="chip" onclick="setFilter('raiz',this)">🌿 Raiz</div>
+      <div class="chip" onclick="setFilter('premoldada',this)">🟫 Pré-Moldada</div>
+      <div class="chip" onclick="setFilter('metalico',this)">⚒️ Metálico</div>
+      <div class="chip" onclick="setFilter('trilho',this)">🛤️ Trilho</div>
+    </div>
+    <div id="records-list"></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="view" id="view-form">
+    <div class="edit-banner" id="edit-banner" style="display:none">
+      <span>✏️</span><span id="edit-banner-txt">Editando registro existente</span>
+    </div>
+    <div id="form-container"></div>
+
+    <!-- Photos -->
+    <div class="fsec">
+      <div class="fsec-hdr" style="background:#37474F">
+        <span>📸</span> Registro Fotográfico
+      </div>
+      <div class="fsec-body">
+        <div class="info-banner">💡 Fotografe materiais, equipamentos, execução e não conformidades</div>
+        <div class="photo-grid" id="photo-grid">
+          <div class="add-photo" onclick="document.getElementById('photo-inp').click()">
+            <span>📷</span><span>Adicionar</span>
+          </div>
+        </div>
+        <input type="file" id="photo-inp" accept="image/*" capture="environment" style="display:none" multiple onchange="addPhotos(this)">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="cancelForm()">✕ Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-record" style="flex:2" onclick="saveForm()">💾 Salvar Registro</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="view" id="view-export">
+    <p class="section-label">Resumo do Banco de Dados</p>
+    <div class="card">
+      <div class="card-body" id="export-summary"></div>
+    </div>
+
+    <p class="section-label">Exportar</p>
+    <div class="exp-opt" onclick="exportCSV()">
+      <span class="exp-icon">📊</span>
+      <div class="exp-info">
+        <h4>Exportar CSV</h4>
+        <p>Planilha com todos os registros — compatível com Excel e Google Sheets</p>
+      </div>
+      <span style="color:var(--g400);font-size:20px">›</span>
+    </div>
+    <div class="exp-opt" onclick="exportJSON()">
+      <span class="exp-icon">💾</span>
+      <div class="exp-info">
+        <h4>Backup JSON</h4>
+        <p>Backup completo de todos os dados incluindo fotos</p>
+      </div>
+      <span style="color:var(--g400);font-size:20px">›</span>
+    </div>
+    <div class="exp-opt" onclick="importJSON()">
+      <span class="exp-icon">📥</span>
+      <div class="exp-info">
+        <h4>Restaurar Backup</h4>
+        <p>Importar dados de um arquivo JSON de backup</p>
+      </div>
+      <span style="color:var(--g400);font-size:20px">›</span>
+    </div>
+    <input type="file" id="import-inp" accept=".json" style="display:none" onchange="handleImport(this)">
+
+    <div class="danger-label">⚠️ Zona de Perigo</div>
+    <div class="exp-opt" onclick="clearAll()" style="border-color:#FFCDD2">
+      <span class="exp-icon">🗑️</span>
+      <div class="exp-info">
+        <h4 style="color:var(--red)">Apagar Todos os Dados</h4>
+        <p>Remove permanentemente todos os registros salvos</p>
+      </div>
+      <span style="color:var(--red);font-size:20px">›</span>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showView('home',this)">
+    <span class="ni">🏠</span><span>Início</span>
+  </button>
+  <button class="nav-item" id="nav-records" onclick="showView('records',this)">
+    <span class="ni">📋</span><span>Registros</span>
+  </button>
+  <button class="nav-item" id="nav-export" onclick="showView('export',this)">
+    <span class="ni">📤</span><span>Exportar</span>
+  </button>
+</nav>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div style="font-size:17px;font-weight:800" id="modal-title">Detalhes</div>
+        <div style="font-size:12px;opacity:.75;margin-top:2px" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   REFERENCE DATA
+═══════════════════════════════════════ */
+const MET=[{nome:"HP 200 x 53,0 (H)",massa:53,d_mm:204,bf_mm:207},{nome:"HP 250 x 62,0 (H)",massa:62,d_mm:246,bf_mm:256},{nome:"HP 250 x 85,0 (H)",massa:85,d_mm:254,bf_mm:260},{nome:"HP 310 x 110,0 (H)",massa:110,d_mm:308,bf_mm:310},{nome:"HP 310 x 125,0 (H)",massa:125,d_mm:312,bf_mm:312},{nome:"HP 310 x 79,0 (H)",massa:79,d_mm:299,bf_mm:306},{nome:"HP 310 x 93,0 (H)",massa:93,d_mm:303,bf_mm:308},{nome:"W 150 x 13,0",massa:13,d_mm:148,bf_mm:100},{nome:"W 150 x 18,0",massa:18,d_mm:153,bf_mm:102},{nome:"W 150 x 22,5 (H)",massa:22.5,d_mm:152,bf_mm:152},{nome:"W 150 x 24,0",massa:24,d_mm:160,bf_mm:102},{nome:"W 200 x 15,0",massa:15,d_mm:200,bf_mm:100},{nome:"W 200 x 26,6",massa:26.6,d_mm:207,bf_mm:133},{nome:"W 200 x 35,9 (H)",massa:35.9,d_mm:201,bf_mm:165},{nome:"W 200 x 41,7 (H)",massa:41.7,d_mm:205,bf_mm:166},{nome:"W 200 x 46,1 (H)",massa:46.1,d_mm:203,bf_mm:203},{nome:"W 200 x 52,0 (H)",massa:52,d_mm:206,bf_mm:204},{nome:"W 200 x 59,0 (H)",massa:59,d_mm:210,bf_mm:205},{nome:"W 200 x 71,0 (H)",massa:71,d_mm:216,bf_mm:206},{nome:"W 200 x 86,0 (H)",massa:86,d_mm:222,bf_mm:209},{nome:"W 250 x 32,7",massa:32.7,d_mm:258,bf_mm:146},{nome:"W 250 x 44,8",massa:44.8,d_mm:266,bf_mm:148},{nome:"W 250 x 73,0 (H)",massa:73,d_mm:253,bf_mm:254},{nome:"W 250 x 89,0 (H)",massa:89,d_mm:260,bf_mm:256},{nome:"W 250 x 101,0 (H)",massa:101,d_mm:264,bf_mm:257},{nome:"W 250 x 115,0 (H)",massa:115,d_mm:269,bf_mm:259},{nome:"W 310 x 38,7",massa:38.7,d_mm:310,bf_mm:165},{nome:"W 310 x 52,0",massa:52,d_mm:317,bf_mm:167},{nome:"W 310 x 97,0 (H)",massa:97,d_mm:308,bf_mm:305},{nome:"W 310 x 107,0 (H)",massa:107,d_mm:311,bf_mm:306},{nome:"W 310 x 117,0 (H)",massa:117,d_mm:314,bf_mm:307},{nome:"W 360 x 51,0",massa:51,d_mm:355,bf_mm:171},{nome:"W 360 x 79,0",massa:79,d_mm:354,bf_mm:205},{nome:"W 360 x 91,0 (H)",massa:91,d_mm:353,bf_mm:254},{nome:"W 360 x 110,0 (H)",massa:110,d_mm:360,bf_mm:256},{nome:"W 360 x 122,0 (H)",massa:122,d_mm:363,bf_mm:257},{nome:"W 410 x 46,1",massa:46.1,d_mm:403,bf_mm:140},{nome:"W 410 x 67,0",massa:67,d_mm:410,bf_mm:179},{nome:"W 410 x 85,0",massa:85,d_mm:417,bf_mm:181},{nome:"W 460 x 60,0",massa:60,d_mm:455,bf_mm:153},{nome:"W 460 x 89,0",massa:89,d_mm:463,bf_mm:192},{nome:"W 460 x 106,0",massa:106,d_mm:469,bf_mm:194},{nome:"W 530 x 72,0",massa:72,d_mm:524,bf_mm:207},{nome:"W 530 x 101,0",massa:101,d_mm:537,bf_mm:210},{nome:"W 530 x 109,0",massa:109,d_mm:539,bf_mm:211},{nome:"W 610 x 101,0",massa:101,d_mm:603,bf_mm:228},{nome:"W 610 x 125,0",massa:125,d_mm:612,bf_mm:229},{nome:"W 610 x 155,0",massa:155,d_mm:611,bf_mm:324},{nome:"W 610 x 174,0",massa:174,d_mm:616,bf_mm:325}];
+
+const TRI=[{nome:"A 100"},{nome:"A 120"},{nome:"A 150"},{nome:"A 45"},{nome:"A 55"},{nome:"A 65"},{nome:"A 75"},{nome:"CR 104"},{nome:"CR 105 (TR52)"},{nome:"CR 135"},{nome:"CR 171"},{nome:"CR 175 (TR 87)"},{nome:"TR 25 ASCE 5040"},{nome:"TR 30 ASCE 6040"},{nome:"TR 32 ASCE 6540"},{nome:"TR 37 ASCE 7540"},{nome:"TR 40 ASCE 8040"},{nome:"TR 45 ASCE 90 ARA-A"},{nome:"TR 50 ASCE 100 RE"},{nome:"TR 57 ASCE 115 RE"},{nome:"TR 68 ASCE 136 RE"}];
+
+const PRE=[{nome:"FOÁ ARMADA ESTRELA ETR 525",dext_cm:52.5},{nome:"FOÁ ARMADA ESTRELA ETR 605",dext_cm:60.8},{nome:"FOÁ ARMADA ESTRELA ETR 707",dext_cm:70.7},{nome:"FOÁ ARMADA ESTRELA ETR 809",dext_cm:80.9},{nome:"FOÁ PROTENDIDA ESTRELA 17 x 17"},{nome:"FOÁ PROTENDIDA ESTRELA ETR 229",dext_cm:22.9},{nome:"FOÁ PROTENDIDA ESTRELA ETR 269",dext_cm:26.9},{nome:"FOÁ PROTENDIDA ESTRELA ETR 298",dext_cm:29.8},{nome:"FOÁ PROTENDIDA ESTRELA ETR 360",dext_cm:36},{nome:"FOÁ PROTENDIDA ESTRELA ETR 406",dext_cm:40.6},{nome:"FOÁ PROTENDIDA ESTRELA ETR 445",dext_cm:44.5},{nome:"FOÁ PROTENDIDA ESTRELA ETR 525",dext_cm:52.5},{nome:"FOÁ PROTENDIDA ESTRELA ETR 707",dext_cm:70.7},{nome:"FOÁ PROTENDIDA ESTRELA ICP 360-I"},{nome:"FOÁ PROTENDIDA ESTRELA ICP 360-II"},{nome:"INCOPRE ARMADA CIRCULAR PLENA Φ 18",dext_cm:18},{nome:"INCOPRE ARMADA CIRCULAR PLENA Φ 23",dext_cm:23},{nome:"INCOPRE ARMADA CIRCULAR PLENA Φ 26",dext_cm:26},{nome:"INCOPRE ARMADA CIRCULAR VAZADA Φ 33",dext_cm:33,dint_cm:27.66},{nome:"INCOPRE ARMADA CIRCULAR VAZADA Φ 38",dext_cm:38,dint_cm:30.98},{nome:"INCOPRE ARMADA CIRCULAR VAZADA Φ 42",dext_cm:42,dint_cm:33.76},{nome:"INCOPRE ARMADA CIRCULAR VAZADA Φ 50",dext_cm:50,dint_cm:40.01},{nome:"INCOPRE ARMADA CIRCULAR VAZADA Φ 60",dext_cm:60,dint_cm:46.43},{nome:"INCOPRE PROTENDIDA QUADRADA PLENA Q 17 X 17",dext_cm:17},{nome:"INCOPRE PROTENDIDA QUADRADA PLENA Q 20 X 20",dext_cm:20},{nome:"INCOPRE PROTENDIDA QUADRADA PLENA Q 23 X 23",dext_cm:23},{nome:"INCOPRE PROTENDIDA QUADRADA PLENA Q 26 X 26",dext_cm:26},{nome:"INCOPRE PROTENDIDA QUADRADA VAZADA Q 30 X 30",dext_cm:30},{nome:"PREFAZ ARMADA CIRCULAR PLENA 26",dext_cm:26},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 34",dext_cm:34,dint_cm:18},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 38",dext_cm:38,dint_cm:21},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 40",dext_cm:40,dint_cm:24},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 42",dext_cm:42,dint_cm:24},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 50",dext_cm:50,dint_cm:31},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 60",dext_cm:60,dint_cm:38},{nome:"PREFAZ PROTENDIDA CIRCULAR VAZADA 70",dext_cm:70,dint_cm:46},{nome:"PREFAZ PROTENDIDA QUADRADA PLENA 17",dext_cm:17},{nome:"PREFAZ PROTENDIDA QUADRADA PLENA 20",dext_cm:20},{nome:"PREFAZ PROTENDIDA QUADRADA PLENA 23",dext_cm:23},{nome:"PREFAZ PROTENDIDA QUADRADA PLENA 26,5",dext_cm:26.5},{nome:"PREFAZ PROTENDIDA QUADRADA PLENA 30",dext_cm:30},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 23",dext_cm:23,dint_cm:10},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 26,5",dext_cm:26.5,dint_cm:12},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 30",dext_cm:30,dint_cm:16},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 34",dext_cm:34,dint_cm:20},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 35",dext_cm:35,dint_cm:20},{nome:"PREFAZ PROTENDIDA QUADRADA VAZADA 37,5",dext_cm:37.5,dint_cm:23}];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let projects = JSON.parse(localStorage.getItem('cf_projects')||'[]');
+let records = JSON.parse(localStorage.getItem('cf_records')||'[]');
+let curProject = null;   // currently selected project
+let curType = null;
+let curPhotos = [];
+let activeFilter = 'all';
+let projEditId = null;
+let editingId = null;    // id do registro em edição (null = novo registro)
+
+const TYPES = {
+  helice:  {icon:'🌀', name:'Hélice Contínua',   short:'HC',    badge:'b-hc'},
+  tubulao: {icon:'🕳️', name:'Tubulão',            short:'TUB',   badge:'b-tubulao'},
+  trado:   {icon:'⚙️', name:'Trado Mecanizado',   short:'TRAD',  badge:'b-trado'},
+  raiz:    {icon:'🌿', name:'Estaca Raiz',         short:'RAIZ',  badge:'b-raiz'},
+  cravada:    {icon:'🔨', name:'Estaca Cravada',      short:'CRAV',    badge:'b-cravada'},
+  premoldada: {icon:'🟫', name:'Pré-Moldada',          short:'PRÉ',     badge:'b-premoldada'},
+  metalico:   {icon:'⚒️', name:'Perfil Metálico',      short:'MET',     badge:'b-metalico'},
+  trilho:     {icon:'🛤️', name:'Trilho Ferroviário',   short:'TRILHO',  badge:'b-trilho'},
+};
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function showView(name, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const subs={home:'Registros da Obra',records:'Todos os Registros',export:'Exportar Dados'};
+  document.getElementById('header-sub').textContent=subs[name]||'';
+  if(name!=='form'){editingId=null;}
+  if(name==='home') renderHome();
+  if(name==='records') renderRecords();
+  if(name==='export') renderExport();
+}
+
+function projRecords() {
+  return curProject ? records.filter(r=>r.projectId===curProject.id) : [];
+}
+
+function showProjectsScreen() {
+  G('projects-screen').classList.add('show');
+  G('main-header').style.display='none';
+  document.querySelector('.bottom-nav').style.display='none';
+  document.querySelector('.main').style.display='none';
+  renderProjects();
+  updNet();
+}
+
+function goToProjects() {
+  curProject = null;
+  editingId = null;
+  showProjectsScreen();
+}
+
+function enterProject(id) {
+  curProject = projects.find(p=>p.id===id);
+  if(!curProject) return;
+  G('projects-screen').classList.remove('show');
+  G('main-header').style.display='block';
+  document.querySelector('.bottom-nav').style.display='flex';
+  document.querySelector('.main').style.display='block';
+  G('header-proj-name').textContent=curProject.nome;
+  const statusClass={'Em Andamento':'andamento','Concluída':'concluida','Suspensa':'suspensa'}[curProject.status]||'andamento';
+  G('header-sub').textContent=(curProject.tipo||'')+' — '+(curProject.status||'Em Andamento');
+  activeFilter='all';
+  if(G('search-inp')) G('search-inp').value='';
+  showView('home', G('nav-home'));
+}
+
+/* ═══════════════════════════════════════
+   HOME
+═══════════════════════════════════════ */
+function renderHome() {
+  const pr=projRecords();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('st-total').textContent=pr.length;
+  document.getElementById('st-hoje').textContent=pr.filter(r=>r.data===today).length;
+  document.getElementById('st-nc').textContent=pr.filter(r=>r.hasNC).length;
+  const recent=[...pr].reverse().slice(0,5);
+  const el=document.getElementById('recent-list');
+  el.innerHTML=recent.length?recent.map(recItemHTML).join(''):
+    `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Nenhum registro nesta obra</div><div class="empty-desc">Selecione um tipo de estaca acima para iniciar</div></div>`;
+}
+
+/* ═══════════════════════════════════════
+   RECORDS
+═══════════════════════════════════════ */
+function renderRecords() {
+  const q=(document.getElementById('search-inp')?.value||'').toLowerCase();
+  const f=projRecords().filter(r=>{
+    const mt=activeFilter==='all'||r.type===activeFilter;
+    const mq=!q||(r.torre||'').toLowerCase().includes(q)||(r.estaca||'').toLowerCase().includes(q)||(r.executor||'').toLowerCase().includes(q);
+    return mt&&mq;
+  }).reverse();
+  const el=document.getElementById('records-list');
+  el.innerHTML=f.length?f.map(recItemHTML).join(''):
+    `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Nenhum resultado</div><div class="empty-desc">Ajuste os filtros ou a busca</div></div>`;
+}
+
+function setFilter(t,el) {
+  activeFilter=t;
+  document.querySelectorAll('#filter-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderRecords();
+}
+
+function recItemHTML(r) {
+  const ti=TYPES[r.type]||{icon:'📋',name:r.type,short:r.type,badge:''};
+  return `<div class="record-item" onclick="showRecord('${r.id}')">
+    <div class="rec-icon">${ti.icon}</div>
+    <div class="rec-info">
+      <div class="rec-title">${r.torre?'Torre '+r.torre+' — ':''}Estaca ${r.estaca||'S/N'}</div>
+      <div class="rec-meta">${r.data||'—'} · ${r.executor||'—'}${r.updatedAt?' · <span class="edited-badge">✏️ editado</span>':''}</div>
+    </div>
+    <div class="rec-right">
+      <div class="badge ${ti.badge}">${ti.short}</div>
+      ${r.hasNC?'<div class="nc-badge">⚠ N.C.</div>':''}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   FORM HELPERS
+═══════════════════════════════════════ */
+function G(id){return document.getElementById(id)}
+function gv(id){return G(id)?.value||''}
+
+function cf(label, id) {
+  return `<div class="cgroup">
+    <div class="clabel">${label}</div>
+    <div class="cbtns">
+      <button class="cbtn" onclick="setConf(this,'${id}','Conforme')">✓ Conforme</button>
+      <button class="cbtn" onclick="setConf(this,'${id}','Não Conforme')">✗ Não Conforme</button>
+    </div>
+    <input type="hidden" id="${id}">
+  </div>`;
+}
+
+function setConf(btn, id, val) {
+  btn.parentElement.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('ok','nc'));
+  btn.classList.add(val==='Conforme'?'ok':'nc');
+  G(id).value=val;
+}
+
+function setSim(btn, id, val) {
+  btn.parentElement.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('ok','nc'));
+  btn.classList.add(val==='Sim'?'ok':'nc');
+  G(id).value=val;
+}
+
+/* ═══════════════════════════════════════
+   FORM BUILDER
+═══════════════════════════════════════ */
+function startForm(type, rec) {
+  curType=type;
+  editingId = rec ? rec.id : null;
+  curPhotos = (rec && Array.isArray(rec.photos)) ? [...rec.photos] : [];
+  const ti=TYPES[type];
+  document.getElementById('header-sub').textContent=(rec?'Editando: ':'Novo: ')+ti.name;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  G('view-form').classList.add('active');
+  G('form-container').innerHTML=buildForm(type);
+
+  if(rec){
+    fillForm(rec);
+    G('edit-banner').style.display='flex';
+    G('edit-banner-txt').textContent=`Editando: ${rec.torre?'Torre '+rec.torre+' — ':''}Estaca ${rec.estaca||'S/N'}`;
+    G('btn-save-record').textContent='💾 Atualizar Registro';
+  } else {
+    G('edit-banner').style.display='none';
+    G('btn-save-record').textContent='💾 Salvar Registro';
+  }
+
+  renderPhotoGrid();
+  window.scrollTo(0,0);
+}
+
+function cancelForm(){editingId=null;curPhotos=[];showView('home',G('nav-home'))}
+
+/* Campos cujo id no formulário difere da chave salva no registro */
+const FIELD_ALIAS = { resp:'responsavel' };
+
+/* Preenche o formulário já montado com os dados de um registro */
+function fillForm(r) {
+  G('form-container').querySelectorAll('[id^="f-"]').forEach(el=>{
+    const raw = el.id.slice(2);
+    if(/^(tq|pr)-\d+$/.test(raw)) return;           // tabela de torque tratada abaixo
+    const key = FIELD_ALIAS[raw] || raw;
+    const val = r[key];
+    if(val===undefined || val===null) return;
+    el.value = val;
+    if(el.type==='hidden') markConf(el, val);
+  });
+
+  if(r.torques){
+    Object.entries(r.torques).forEach(([m,v])=>{
+      const t=G('f-tq-'+m), p=G('f-pr-'+m);
+      if(t) t.value=v.t||'';
+      if(p) p.value=v.p||'';
+    });
+  }
+  if(curType==='helice') calcSC();
+}
+
+/* Reaplica o destaque visual nos botões Conforme / Não Conforme (ou Sim / Não) */
+function markConf(input, val) {
+  const box = input.parentElement ? input.parentElement.querySelector('.cbtns') : null;
+  if(!box) return;
+  const btns = box.querySelectorAll('.cbtn');
+  btns.forEach(b=>b.classList.remove('ok','nc'));
+  if(val==='Conforme' || val==='Sim') { if(btns[0]) btns[0].classList.add('ok'); }
+  else if(val==='Não Conforme' || val==='Não') { if(btns[1]) btns[1].classList.add('nc'); }
+}
+
+function buildForm(type) {
+  const today=new Date().toISOString().split('T')[0];
+  const ident=`<div class="fsec"><div class="fsec-hdr blue"><span>🪪</span> Identificação</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Torre / Bloco</label><input type="text" id="f-torre" placeholder="ex: T01"></div>
+        <div class="fgroup"><label>Estaca Nº *</label><input type="text" id="f-estaca" placeholder="ex: E-42"></div>
+      </div>
+      <div class="fgroup"><label>Data de Execução</label><input type="date" id="f-data" value="${today}"></div>
+      <div class="frow">
+        <div class="fgroup"><label>Executor</label><input type="text" id="f-executor" placeholder="Nome"></div>
+        <div class="fgroup"><label>Responsável</label><input type="text" id="f-resp" placeholder="Nome"></div>
+      </div>
+    </div></div>`;
+
+  const obs=`<div class="fsec"><div class="fsec-hdr gray"><span>📝</span> Observações Gerais</div>
+    <div class="fsec-body">
+      <textarea id="f-obs" placeholder="Observações, intercorrências, anotações de campo..."></textarea>
+    </div></div>`;
+
+  let specific='';
+  if(type==='helice') specific=formHelice();
+  else if(type==='tubulao') specific=formTubulao();
+  else if(type==='trado') specific=formTrado();
+  else if(type==='raiz') specific=formRaiz();
+  else if(type==='premoldada') specific=formPremoldada();
+  else if(type==='metalico') specific=formMetalico();
+  else if(type==='trilho') specific=formTrilho();
+
+  return ident+specific+obs;
+}
+
+function formHelice() {
+  const rows=Array.from({length:32},(_,i)=>`<tr>
+    <td>${i+1}</td>
+    <td><input type="number" step="0.1" id="f-tq-${i+1}" placeholder="—" onkeydown="tqNav(event,${i+1},'tq')"></td>
+    <td><input type="number" step="0.1" id="f-pr-${i+1}" placeholder="—" onkeydown="tqNav(event,${i+1},'pr')"></td>
+  </tr>`).join('');
+  return `
+  <div class="fsec"><div class="fsec-hdr blue"><span>📐</span> Geometria</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Cota de Execução (m)</label><input type="number" step="0.01" id="f-cota" placeholder="0.00"></div>
+        <div class="fgroup"><label>Diâmetro (cm)</label><input type="number" step="0.5" id="f-diam" placeholder="0"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Profundidade HC (m)</label><input type="number" step="0.1" id="f-phc" placeholder="0.0"></div>
+        <div class="fgroup"><label>Profundidade Real (m)</label><input type="number" step="0.1" id="f-preal" placeholder="0.0"></div>
+      </div>
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr brown"><span class="section-icon">🌍</span> Check Inicial de Solo</div>
+    <div class="fsec-body">
+      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
+      ${cf('Solo compatível com a sondagem (material e cota)','f-solo')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🧱</span> Concretagem</div>
+    <div class="fsec-body">
+      <div class="cgroup">
+        <div class="clabel">Concretagem com pressão positiva</div>
+        <div class="cbtns">
+          <button class="cbtn" onclick="setSim(this,'f-ppos','Sim')">✓ Sim</button>
+          <button class="cbtn" onclick="setSim(this,'f-ppos','Não')">✗ Não</button>
+        </div>
+        <input type="hidden" id="f-ppos">
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Vol. Teórico (m³)</label><input type="number" step="0.01" id="f-vteo" placeholder="0.00" oninput="calcSC()"></div>
+        <div class="fgroup"><label>Vol. Computador HC (m³)</label><input type="number" step="0.01" id="f-vcomp" placeholder="0.00" oninput="calcSC()"></div>
+      </div>
+      <div class="fgroup"><label>Vol. Caminhão HC (m³)</label><input type="number" step="0.01" id="f-vcam" placeholder="0.00" oninput="calcSC()"></div>
+      <div class="frow">
+        <div><div class="calc-box"><div class="calc-val" id="sc-comp-v">—</div><div class="calc-lbl">Sobreconsumo Comp. (%)</div></div><input type="hidden" id="f-sccomp"></div>
+        <div><div class="calc-box"><div class="calc-val" id="sc-cam-v">—</div><div class="calc-lbl">Sobreconsumo Cam. (%)</div></div><input type="hidden" id="f-sccam"></div>
+      </div>
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔩</span> Armação</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Qtd e Bitola (N1)</label><input type="text" id="f-arm" placeholder="ex: 8Ø25"></div>
+        <div class="fgroup"><label>Comprimento (m)</label><input type="number" step="0.1" id="f-carm" placeholder="0.0"></div>
+      </div>
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr teal"><span>📈</span> Monitoramento — Metro a Metro</div>
+    <div class="fsec-body">
+      <div class="info-banner">ℹ️ Registre torque (kN.m) e/ou pressão (bar) a cada metro perfurado</div>
+      <div class="tbl-scroll">
+        <table class="torque-tbl">
+          <thead><tr><th>Prof.(m)</th><th>Torque (kN.m)</th><th>Pressão (bar)</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div></div>`;
+}
+
+function formTubulao() {
+  return `
+  <div class="fsec"><div class="fsec-hdr blue"><span>⛏️</span> Escavação</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Diâm. do Fuste (m)</label><input type="number" step="0.05" id="f-dfuste" placeholder="0.00"></div>
+        <div class="fgroup"><label>Prof. do Fuste (m)</label><input type="number" step="0.1" id="f-pfuste" placeholder="0.0"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Diâm. da Base (m)</label><input type="number" step="0.05" id="f-dbase" placeholder="0.00"></div>
+        <div class="fgroup"><label>Altura da Base (m)</label><input type="number" step="0.05" id="f-hbase" placeholder="0.00"></div>
+      </div>
+      <div class="fgroup"><label>Nível d'Água (m abaixo)</label><input type="number" step="0.1" id="f-nagua" placeholder="Não detectado"></div>
+      ${cf('Estabilidade das paredes da escavação','f-estpar')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr brown"><span class="section-icon">🌍</span> Check Inicial de Solo</div>
+    <div class="fsec-body">
+      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
+      ${cf('Solo compatível com a sondagem (material e cota)','f-solo')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr red"><span>🦺</span> Segurança (NR-18)</div>
+    <div class="fsec-body">
+      ${cf('Uso de EPIs adequados','f-epis')}
+      ${cf('Ventilação adequada','f-vent')}
+      ${cf('Iluminação adequada','f-ilum')}
+      ${cf('Escada de acesso em bom estado','f-escada')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🧱</span> Concretagem</div>
+    <div class="fsec-body">
+      ${cf('Lançamento do concreto adequado','f-lanc')}
+      ${cf('Adensamento adequado','f-aden')}
+    </div></div>`;
+}
+
+function formTrado() {
+  return `
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔄</span> Perfuração</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Diâmetro (cm)</label><input type="number" step="0.5" id="f-diam" placeholder="0"></div>
+        <div class="fgroup"><label>Profundidade (m)</label><input type="number" step="0.1" id="f-prof" placeholder="0.0"></div>
+      </div>
+      <div class="fgroup"><label>Nível d'Água (m abaixo)</label><input type="number" step="0.1" id="f-nagua" placeholder="Não detectado"></div>
+      ${cf('Estabilidade do furo','f-estfuro')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr brown"><span class="section-icon">🌍</span> Check Inicial de Solo</div>
+    <div class="fsec-body">
+      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
+      ${cf('Solo compatível com a sondagem (material e cota)','f-solo')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🧱</span> Concretagem</div>
+    <div class="fsec-body">
+      ${cf('Lançamento do concreto','f-lanc')}
+      <div class="fgroup"><label>Consumo de Concreto (m³)</label><input type="number" step="0.01" id="f-cons" placeholder="0.00"></div>
+      ${cf('Adensamento','f-aden')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔩</span> Armação</div>
+    <div class="fsec-body">
+      ${cf('Instalação da armadura','f-iarm')}
+      ${cf('Centralização da armadura','f-cent')}
+    </div></div>`;
+}
+
+function formRaiz() {
+  return `
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔄</span> Perfuração</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Diâmetro (mm)</label><input type="number" step="5" id="f-diam" placeholder="0"></div>
+        <div class="fgroup"><label>Profundidade (m)</label><input type="number" step="0.1" id="f-prof" placeholder="0.0"></div>
+      </div>
+      <div class="fgroup"><label>Nível d'Água (m abaixo)</label><input type="number" step="0.1" id="f-nagua" placeholder="Não detectado"></div>
+      ${cf('Estabilidade do furo','f-estfuro')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr brown"><span class="section-icon">🌍</span> Check Inicial de Solo</div>
+    <div class="fsec-body">
+      <div class="info-banner">ℹ️ Verifique se o material encontrado em campo é coerente com o esperado na sondagem</div>
+      ${cf('Solo compatível com a sondagem (material e cota)','f-solo')}
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔩</span> Armação</div>
+    <div class="fsec-body">
+      ${cf('Instalação da armadura','f-iarm')}
+      ${cf('Centralização da armadura','f-cent')}
+      <div class="fgroup"><label>Comprimento da Armadura (m)</label><input type="number" step="0.1" id="f-carm" placeholder="0.0"></div>
+    </div></div>
+
+  <div class="fsec"><div class="fsec-hdr green"><span>💉</span> Injeção de Calda de Cimento</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Pressão de Injeção (bar)</label><input type="number" step="0.1" id="f-pinj" placeholder="0.0"></div>
+        <div class="fgroup"><label>Consumo de Calda (L)</label><input type="number" step="1" id="f-ccalda" placeholder="0"></div>
+      </div>
+      <div class="fgroup"><label>Tempo de Injeção (min)</label><input type="number" step="1" id="f-tinj" placeholder="0"></div>
+    </div></div>`;
+}
+
+function _cravCom() {
+  return `
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔨</span> Cravação</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Nega (mm)</label><input type="number" step="0.5" id="f-nega" placeholder="0.0"></div>
+        <div class="fgroup"><label>Repique (mm)</label><input type="number" step="0.5" id="f-repique" placeholder="0.0"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Prof. Cravada (m)</label><input type="number" step="0.1" id="f-pcrav" placeholder="0.0"></div>
+        <div class="fgroup"><label>Comp. Total da Estaca (m)</label><input type="number" step="0.1" id="f-ctotal" placeholder="0.0"></div>
+      </div>
+      ${cf('Comprimento cravado vs. projetado','f-cconf')}
+    </div></div>
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔍</span> Integridade</div>
+    <div class="fsec-body">
+      ${cf('Integridade da estaca','f-integ')}
+      ${cf('Ausência de danos visíveis','f-danos')}
+    </div></div>
+  <div class="fsec"><div class="fsec-hdr blue"><span>🔗</span> Emendas</div>
+    <div class="fsec-body">
+      <div class="frow">
+        <div class="fgroup"><label>Nº de Emendas</label><input type="number" step="1" id="f-nemendas" placeholder="0" min="0"></div>
+        <div class="fgroup"><label>Tipo de Emenda</label><input type="text" id="f-temenda" placeholder="ex: soldada, flangeada"></div>
+      </div>
+      ${cf('Qualidade da emenda','f-qemenda')}
+    </div></div>`;
+}
+
+function formPremoldada() {
+  const opts = PRE.map(p => {
+    const dim = p.dext_cm ? ` — Ø${p.dext_cm} cm` : '';
+    return `<option value="${p.nome}">${p.nome}${dim}</option>`;
+  }).join('');
+  return `
+  <div class="fsec"><div class="fsec-hdr" style="background:#BF360C"><span>🟫</span> Seleção — Pré-Moldada de Concreto</div>
+    <div class="fsec-body">
+      <div class="fgroup"><label>Modelo / Tipo</label>
+        <select id="f-modelo"><option value="">Selecionar modelo...</option>${opts}</select>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Comp. do Segmento (m)</label><input type="number" step="0.1" id="f-cseg" placeholder="0.0"></div>
+        <div class="fgroup"><label>Resistência</label><input type="text" id="f-resist" placeholder="ex: C50, fck=50MPa"></div>
+      </div>
+    </div></div>
+  ${_cravCom()}`;
+}
+
+function formMetalico() {
+  const opts = MET.map(m => `<option value="${m.nome}">${m.nome} — ${m.massa} kg/m (d=${m.d_mm} mm)</option>`).join('');
+  return `
+  <div class="fsec"><div class="fsec-hdr" style="background:#263238"><span>⚒️</span> Seleção — Perfil Metálico (HP / W)</div>
+    <div class="fsec-body">
+      <div class="fgroup"><label>Perfil</label>
+        <select id="f-modelo"><option value="">Selecionar perfil...</option>${opts}</select>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Grau do Aço</label><input type="text" id="f-aco" placeholder="ex: ASTM A572 Gr.50"></div>
+        <div class="fgroup"><label>Comp. do Segmento (m)</label><input type="number" step="0.1" id="f-cseg" placeholder="0.0"></div>
+      </div>
+    </div></div>
+  ${_cravCom()}`;
+}
+
+function formTrilho() {
+  const opts = TRI.map(t => `<option value="${t.nome}">${t.nome}</option>`).join('');
+  return `
+  <div class="fsec"><div class="fsec-hdr" style="background:#4A148C"><span>🛤️</span> Seleção — Trilho Ferroviário</div>
+    <div class="fsec-body">
+      <div class="fgroup"><label>Perfil de Trilho</label>
+        <select id="f-modelo"><option value="">Selecionar trilho...</option>${opts}</select>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>Comp. do Segmento (m)</label><input type="number" step="0.1" id="f-cseg" placeholder="0.0"></div>
+        <div class="fgroup"><label>Bitola (mm)</label><input type="text" id="f-bitola" placeholder="ex: 1000"></div>
+      </div>
+    </div></div>
+  ${_cravCom()}`;
+}
+
+function calcSC() {
+  const teo=parseFloat(gv('f-vteo'))||0;
+  const comp=parseFloat(gv('f-vcomp'))||0;
+  const cam=parseFloat(gv('f-vcam'))||0;
+  function upd(vEl,hEl,actual) {
+    if(teo>0&&actual>0){
+      const v=((actual-teo)/teo*100).toFixed(1);
+      const el=G(vEl); el.textContent=v+'%';
+      el.style.color=parseFloat(v)>20?'var(--red)':'var(--b800)';
+      G(hEl).value=v;
+    } else {G(vEl).textContent='—';G(hEl).value='';}
+  }
+  upd('sc-comp-v','f-sccomp',comp);
+  upd('sc-cam-v','f-sccam',cam);
+}
+
+/* ═══════════════════════════════════════
+   SAVE (novo registro ou edição)
+═══════════════════════════════════════ */
+function saveForm() {
+  const estaca=gv('f-estaca').trim();
+  if(!estaca){showToast('⚠️ Informe o número da estaca');return;}
+
+  const original = editingId ? records.find(r=>r.id===editingId) : null;
+
+  const d={
+    id: editingId || Date.now().toString(),
+    type:curType, photos:curPhotos,
+    projectId: original ? original.projectId : (curProject ? curProject.id : null),
+    torre:gv('f-torre').trim(), estaca, data:gv('f-data'),
+    executor:gv('f-executor').trim(), responsavel:gv('f-resp').trim(),
+    solo:gv('f-solo'), obs:gv('f-obs').trim(),
+    createdAt: original ? original.createdAt : new Date().toISOString()
+  };
+
+  if(curType==='helice'){
+    Object.assign(d,{
+      cota:gv('f-cota'),diam:gv('f-diam'),phc:gv('f-phc'),preal:gv('f-preal'),
+      ppos:gv('f-ppos'),vteo:gv('f-vteo'),vcomp:gv('f-vcomp'),vcam:gv('f-vcam'),
+      sccomp:gv('f-sccomp'),sccam:gv('f-sccam'),arm:gv('f-arm'),carm:gv('f-carm'),
+    });
+    const tq={};
+    for(let i=1;i<=32;i++){const t=gv(`f-tq-${i}`),p=gv(`f-pr-${i}`);if(t||p)tq[i]={t,p};}
+    d.torques=tq;
+  } else if(curType==='tubulao'){
+    Object.assign(d,{dfuste:gv('f-dfuste'),pfuste:gv('f-pfuste'),dbase:gv('f-dbase'),hbase:gv('f-hbase'),nagua:gv('f-nagua'),estpar:gv('f-estpar'),epis:gv('f-epis'),vent:gv('f-vent'),ilum:gv('f-ilum'),escada:gv('f-escada'),lanc:gv('f-lanc'),aden:gv('f-aden')});
+  } else if(curType==='trado'){
+    Object.assign(d,{diam:gv('f-diam'),prof:gv('f-prof'),nagua:gv('f-nagua'),estfuro:gv('f-estfuro'),lanc:gv('f-lanc'),cons:gv('f-cons'),aden:gv('f-aden'),iarm:gv('f-iarm'),cent:gv('f-cent')});
+  } else if(curType==='raiz'){
+    Object.assign(d,{diam:gv('f-diam'),prof:gv('f-prof'),nagua:gv('f-nagua'),estfuro:gv('f-estfuro'),iarm:gv('f-iarm'),cent:gv('f-cent'),carm:gv('f-carm'),pinj:gv('f-pinj'),ccalda:gv('f-ccalda'),tinj:gv('f-tinj')});
+  } else if(curType==='premoldada'){
+    Object.assign(d,{modelo:gv('f-modelo'),cseg:gv('f-cseg'),resist:gv('f-resist'),nega:gv('f-nega'),repique:gv('f-repique'),pcrav:gv('f-pcrav'),ctotal:gv('f-ctotal'),cconf:gv('f-cconf'),integ:gv('f-integ'),danos:gv('f-danos'),nemendas:gv('f-nemendas'),temenda:gv('f-temenda'),qemenda:gv('f-qemenda')});
+  } else if(curType==='metalico'){
+    Object.assign(d,{modelo:gv('f-modelo'),aco:gv('f-aco'),cseg:gv('f-cseg'),nega:gv('f-nega'),repique:gv('f-repique'),pcrav:gv('f-pcrav'),ctotal:gv('f-ctotal'),cconf:gv('f-cconf'),integ:gv('f-integ'),danos:gv('f-danos'),nemendas:gv('f-nemendas'),temenda:gv('f-temenda'),qemenda:gv('f-qemenda')});
+  } else if(curType==='trilho'){
+    Object.assign(d,{modelo:gv('f-modelo'),cseg:gv('f-cseg'),bitola:gv('f-bitola'),nega:gv('f-nega'),repique:gv('f-repique'),pcrav:gv('f-pcrav'),ctotal:gv('f-ctotal'),cconf:gv('f-cconf'),integ:gv('f-integ'),danos:gv('f-danos'),nemendas:gv('f-nemendas'),temenda:gv('f-temenda'),qemenda:gv('f-qemenda')});
+  }
+
+  d.hasNC=Object.values(d).some(v=>v==='Não Conforme');
+
+  const wasEdit = !!editingId;
+  if(wasEdit){
+    d.updatedAt=new Date().toISOString();
+    records=records.map(r=>r.id===editingId?d:r);
+  } else {
+    records.push(d);
+  }
+
+  editingId=null;
+  curPhotos=[];
+  save();
+  showToast(wasEdit?'✅ Registro atualizado!':'✅ Registro salvo com sucesso!');
+  setTimeout(()=>showView('home',G('nav-home')),800);
+}
+
+function save(){localStorage.setItem('cf_records',JSON.stringify(records));}
+
+/* ═══════════════════════════════════════
+   DETAIL MODAL
+═══════════════════════════════════════ */
+function showRecord(id) {
+  const r=records.find(x=>x.id===id);if(!r)return;
+  const ti=TYPES[r.type]||{icon:'📋',name:r.type};
+  G('modal-title').textContent=`${ti.icon} ${ti.name} — Estaca ${r.estaca}`;
+  G('modal-sub').textContent=`Torre ${r.torre||'—'}  ·  ${r.data||'—'}`;
+
+  const f=(k,v)=>{
+    if(!v)return'';
+    const cls=v==='Conforme'?'ok':v==='Não Conforme'?'nc':'';
+    return `<div class="dfield"><span class="dkey">${k}</span><span class="dval ${cls}">${v}</span></div>`;
+  };
+
+  const card=(title,icon,content)=>
+    `<div class="card"><div class="card-header"><span class="card-icon">${icon}</span><h3>${title}</h3></div><div class="card-body">${content}</div></div>`;
+
+  let body=`<div class="btn-row" style="margin-bottom:16px">
+    <button class="btn btn-secondary" onclick="editRecord('${r.id}')">✏️ Editar</button>
+    <button class="btn btn-danger" onclick="delRecord('${r.id}')">🗑️ Excluir</button>
+  </div>`;
+
+  body+=card('Identificação','🪪',
+    f('Executor',r.executor)+f('Responsável',r.responsavel)+f('Data',r.data)+f('Check de Solo',r.solo));
+
+  if(r.type==='helice'){
+    body+=card('Geometria & Concreto','📐',
+      f('Cota (m)',r.cota)+f('Diâmetro (cm)',r.diam)+f('Prof. HC (m)',r.phc)+
+      f('Prof. Real (m)',r.preal)+f('Pressão Positiva',r.ppos)+
+      f('Vol. Teórico (m³)',r.vteo)+f('Vol. Computador (m³)',r.vcomp)+f('Vol. Caminhão (m³)',r.vcam)+
+      f('Sobrec. Comp. (%)',r.sccomp)+f('Sobrec. Cam. (%)',r.sccam)+
+      f('Armação (N1)',r.arm)+f('Comp. Arm. (m)',r.carm));
+    if(r.torques&&Object.keys(r.torques).length>0){
+      const rows=Object.entries(r.torques).map(([m,v])=>`<tr><td>${m}</td><td>${v.t||'—'}</td><td>${v.p||'—'}</td></tr>`).join('');
+      body+=card('Monitoramento Metro a Metro','📈',
+        `<div class="tbl-scroll"><table class="torque-tbl"><thead><tr><th>m</th><th>Torque (kN.m)</th><th>Pressão (bar)</th></tr></thead><tbody>${rows}</tbody></table></div>`);
+    }
+  } else if(r.type==='tubulao'){
+    body+=card('Escavação & Segurança','⛏️',
+      f('Diâm. Fuste (m)',r.dfuste)+f('Prof. Fuste (m)',r.pfuste)+f('Diâm. Base (m)',r.dbase)+
+      f('Altura Base (m)',r.hbase)+f('Nível d\'Água',r.nagua)+f('Estab. Paredes',r.estpar)+
+      f('EPIs',r.epis)+f('Ventilação',r.vent)+f('Iluminação',r.ilum)+f('Escada',r.escada)+
+      f('Lançamento',r.lanc)+f('Adensamento',r.aden));
+  } else if(r.type==='trado'){
+    body+=card('Perfuração & Concretagem','⚙️',
+      f('Diâmetro (cm)',r.diam)+f('Profundidade (m)',r.prof)+f('Nível d\'Água',r.nagua)+
+      f('Estab. Furo',r.estfuro)+f('Lançamento',r.lanc)+f('Consumo (m³)',r.cons)+
+      f('Adensamento',r.aden)+f('Inst. Armadura',r.iarm)+f('Centralização',r.cent));
+  } else if(r.type==='raiz'){
+    body+=card('Perfuração, Armação & Injeção','🌿',
+      f('Diâmetro (mm)',r.diam)+f('Profundidade (m)',r.prof)+f('Nível d\'Água',r.nagua)+
+      f('Estab. Furo',r.estfuro)+f('Inst. Armadura',r.iarm)+f('Centralização',r.cent)+
+      f('Comp. Arm. (m)',r.carm)+f('Pressão Inj. (bar)',r.pinj)+
+      f('Consumo Calda (L)',r.ccalda)+f('Tempo Inj. (min)',r.tinj));
+  } else if(r.type==='premoldada'||r.type==='metalico'||r.type==='trilho'){
+    const extra = r.type==='premoldada' ? f('Resistência',r.resist) : r.type==='metalico' ? f('Aço',r.aco) : f('Bitola (mm)',r.bitola);
+    body+=card('Modelo & Cravação','🔨',
+      f('Modelo',r.modelo)+f('Comp. Segmento (m)',r.cseg)+extra+
+      f('Nega (mm)',r.nega)+f('Repique (mm)',r.repique)+f('Prof. Cravada (m)',r.pcrav)+f('Comp. Total (m)',r.ctotal)+
+      f('Comp. vs. Proj.',r.cconf)+f('Integridade',r.integ)+f('Sem Danos',r.danos)+
+      f('Nº Emendas',r.nemendas)+f('Tipo Emenda',r.temenda)+f('Qual. Emenda',r.qemenda));
+  }
+
+  if(r.obs) body+=card('Observações','📝',`<p style="font-size:14px;line-height:1.7;color:var(--g800)">${r.obs.replace(/\n/g,'<br>')}</p>`);
+
+  if(r.photos&&r.photos.length>0)
+    body+=card(`Fotos (${r.photos.length})`,'📸',
+      `<div class="photo-grid">${r.photos.map(p=>`<div class="photo-thumb"><img src="${p}" onclick="window.open('${p}','_blank')" style="cursor:zoom-in"></div>`).join('')}</div>`);
+
+  if(r.updatedAt)
+    body+=`<p style="font-size:11px;color:var(--g400);text-align:center;margin-top:4px">✏️ Última edição: ${new Date(r.updatedAt).toLocaleString('pt-BR')}</p>`;
+
+  G('modal-body').innerHTML=body;
+  G('detail-modal').classList.add('show');
+}
+
+function closeModal(){G('detail-modal').classList.remove('show')}
+
+/* Abre o formulário preenchido para edição */
+function editRecord(id) {
+  const r=records.find(x=>x.id===id);
+  if(!r){showToast('⚠️ Registro não encontrado');return;}
+  closeModal();
+  startForm(r.type, r);
+}
+
+function delRecord(id) {
+  if(!confirm('Excluir este registro permanentemente?'))return;
+  records=records.filter(r=>r.id!==id);
+  save(); closeModal();
+  refreshLists();
+  showToast('🗑️ Registro excluído');
+}
+
+function refreshLists(){
+  if(G('view-home').classList.contains('active')) renderHome();
+  if(G('view-records').classList.contains('active')) renderRecords();
+  if(G('view-export').classList.contains('active')) renderExport();
+}
+
+/* ═══════════════════════════════════════
+   PHOTOS
+═══════════════════════════════════════ */
+function addPhotos(inp) {
+  Array.from(inp.files).forEach(f=>{
+    const rd=new FileReader();
+    rd.onload=e=>{curPhotos.push(e.target.result);renderPhotoGrid();};
+    rd.readAsDataURL(f);
+  });
+  inp.value='';
+}
+
+function renderPhotoGrid() {
+  const g=G('photo-grid');if(!g)return;
+  g.innerHTML=curPhotos.map((p,i)=>`<div class="photo-thumb"><img src="${p}"><button class="rm-photo" onclick="rmPhoto(${i})">✕</button></div>`).join('')+
+    `<div class="add-photo" onclick="G('photo-inp').click()"><span>📷</span><span>Adicionar</span></div>`;
+}
+function rmPhoto(i){curPhotos.splice(i,1);renderPhotoGrid();}
+
+/* ═══════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════ */
+function renderExport() {
+  const pr=projRecords();
+  const tlist=['helice','tubulao','trado','raiz','premoldada','metalico','trilho'];
+  const tot=pr.length, nc=pr.filter(r=>r.hasNC).length;
+  let rows=tlist.map(t=>{
+    const ti=TYPES[t]; const rs=pr.filter(r=>r.type===t); const ncs=rs.filter(r=>r.hasNC).length;
+    return `<tr><td style="padding:9px 0;font-weight:600;font-size:13px">${ti.icon} ${ti.name}</td>
+      <td style="text-align:right;padding:9px 0;font-weight:700">${rs.length}</td>
+      <td style="text-align:right;padding:9px 0;font-weight:${ncs?'800':'400'};color:${ncs?'var(--red)':'var(--g400)'}">${ncs||'—'}</td></tr>`;
+  }).join('');
+  G('export-summary').innerHTML=`<table style="width:100%;border-collapse:collapse">
+    <tr><th style="text-align:left;padding:0 0 8px;font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200)">Tipo</th>
+    <th style="text-align:right;padding:0 0 8px;font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200)">Qtd</th>
+    <th style="text-align:right;padding:0 0 8px;font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200)">N.C.</th></tr>
+    ${rows}
+    <tr style="border-top:2px solid var(--b200)">
+      <td style="padding:10px 0 0;font-weight:800;color:var(--b800)">TOTAL</td>
+      <td style="text-align:right;padding:10px 0 0;font-weight:800;color:var(--b800)">${tot}</td>
+      <td style="text-align:right;padding:10px 0 0;font-weight:800;color:${nc?'var(--red)':'var(--g400)'}">${nc||'—'}</td>
+    </tr></table>`;
+}
+
+/* ═══════════════════════════════════════
+   RÓTULOS AMIGÁVEIS PARA O CSV
+═══════════════════════════════════════ */
+const LABELS = {
+  id:'ID', type:'Tipo de Estaca', projectId:'ID da Obra', torre:'Torre/Bloco', estaca:'Estaca',
+  data:'Data', executor:'Executor', responsavel:'Responsável', solo:'Check de Solo',
+  obs:'Observações', createdAt:'Criado em', updatedAt:'Editado em', hasNC:'Possui N.C.', fotos:'Qtd. Fotos',
+  // Hélice Contínua
+  cota:'Cota (m)', diam:'Diâmetro', phc:'Profundidade HC (m)', preal:'Profundidade Real (m)',
+  ppos:'Pressão Positiva', vteo:'Vol. Teórico (m³)', vcomp:'Vol. Computador (m³)', vcam:'Vol. Caminhão (m³)',
+  sccomp:'Sobreconsumo Comp. (%)', sccam:'Sobreconsumo Cam. (%)', arm:'Armação (N1)', carm:'Comp. Armadura (m)',
+  // Tubulão
+  dfuste:'Diâm. Fuste (m)', pfuste:'Prof. Fuste (m)', dbase:'Diâm. Base (m)', hbase:'Altura Base (m)',
+  nagua:"Nível d'Água (m)", estpar:'Estab. Paredes', epis:'EPIs', vent:'Ventilação', ilum:'Iluminação',
+  escada:'Escada', lanc:'Lançamento Concreto', aden:'Adensamento',
+  // Trado / Raiz
+  prof:'Profundidade (m)', estfuro:'Estab. Furo', cons:'Consumo Concreto (m³)', iarm:'Inst. Armadura', cent:'Centralização',
+  pinj:'Pressão Injeção (bar)', ccalda:'Consumo Calda (L)', tinj:'Tempo Injeção (min)',
+  // Pré-Moldada / Metálico / Trilho
+  modelo:'Modelo/Perfil', cseg:'Comp. Segmento (m)', resist:'Resistência', aco:'Grau do Aço', bitola:'Bitola (mm)',
+  nega:'Nega (mm)', repique:'Repique (mm)', pcrav:'Prof. Cravada (m)', ctotal:'Comp. Total (m)',
+  cconf:'Comp. vs. Projetado', integ:'Integridade', danos:'Ausência de Danos',
+  nemendas:'Nº Emendas', temenda:'Tipo Emenda', qemenda:'Qual. Emenda'
+};
+
+function labelFor(k) {
+  if (LABELS[k]) return LABELS[k];
+  const mT = k.match(/^torque_(\d+)m$/);
+  if (mT) return `Torque ${mT[1]}m (kN.m)`;
+  const mP = k.match(/^pressao_(\d+)m$/);
+  if (mP) return `Pressão ${mP[1]}m (bar)`;
+  return k; // fallback: mostra a chave crua se não estiver mapeada
+}
+
+function exportCSV() {
+  const pr2=projRecords();
+  if(!pr2.length){showToast('⚠️ Nenhum dado para exportar');return;}
+  const flat=pr2.map(r=>{
+    const o={...r};delete o.photos;delete o.torques;
+    if(r.torques)Object.entries(r.torques).forEach(([m,v])=>{o[`torque_${m}m`]=v.t;o[`pressao_${m}m`]=v.p;});
+    o.fotos=r.photos?r.photos.length:0;
+    return o;
+  });
+  const keys=[...new Set(flat.flatMap(Object.keys))];
+  const esc=v=>`"${(v??'').toString().replace(/"/g,'""')}"`;
+  const csv='\uFEFF'+[keys.map(k=>esc(labelFor(k))).join(';'),...flat.map(r=>keys.map(k=>esc(r[k])).join(';'))].join('\n');
+  dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),`checkfund_${today()}.csv`);
+  showToast('📊 CSV exportado!');
+}
+
+function exportJSON() {
+  const pj=projRecords();
+  if(!pj.length){showToast('⚠️ Nenhum dado para exportar');return;}
+  dl(new Blob([JSON.stringify(pj,null,2)],{type:'application/json'}),`checkfund_backup_${today()}.json`);
+  showToast('💾 Backup exportado!');
+}
+
+function importJSON(){G('import-inp').click();}
+function handleImport(inp) {
+  const f=inp.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const imp=JSON.parse(e.target.result);
+      if(!Array.isArray(imp))throw 0;
+      const ex=new Set(records.map(r=>r.id));
+      const news=imp.filter(r=>!ex.has(r.id));
+      records=[...records,...news]; save(); renderExport();
+      showToast(`✅ ${news.length} registros importados!`);
+    }catch{showToast('❌ Arquivo inválido');}
+  };
+  rd.readAsText(f); inp.value='';
+}
+
+function clearAll() {
+  if(!confirm('⚠️ Apagar TODOS os registros? Esta ação não pode ser desfeita.'))return;
+  if(!confirm('Confirmar exclusão definitiva de todos os dados?'))return;
+  const pid=curProject?curProject.id:null;
+  if(pid) records=records.filter(r=>r.projectId!==pid);
+  else records=[];
+  save();
+  renderHome();
+  renderExport();
+  showToast('🗑️ Dados da obra apagados');
+}
+
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function today(){return new Date().toISOString().split('T')[0];}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+function showToast(msg) {
+  const t=G('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ═══════════════════════════════════════
+   ONLINE/OFFLINE
+═══════════════════════════════════════ */
+function updNet() {
+  const on=navigator.onLine;
+  ['sdot','proj-sdot'].forEach(id=>{const e=G(id);if(e)e.className='dot '+(on?'dot-on':'dot-off');});
+  ['stxt','proj-stxt'].forEach(id=>{const e=G(id);if(e)e.textContent=on?'Online':'Offline';});
+  G('offline-banner').classList.toggle('show',!on);
+}
+window.addEventListener('online',updNet);
+window.addEventListener('offline',updNet);
+updNet();
+
+/* ═══════════════════════════════════════
+   PWA SERVICE WORKER (inline blob)
+═══════════════════════════════════════ */
+if('serviceWorker' in navigator) {
+  const sw=`
+const C='cf-v2';
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(
+  caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>clients.claim())
+));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(caches.open(C).then(c=>c.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{
+    if(r.ok)c.put(e.request,r.clone());return r;
+  }))));
+});`;
+  const blob=new Blob([sw],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+/* PWA Manifest */
+const mf={name:"CheckFund – Fundações Profundas",short_name:"CheckFund",
+  description:"Checklist para controle executivo de fundações profundas",
+  start_url:".",display:"standalone",background_color:"#E3F2FD",theme_color:"#1565C0",
+  icons:[{src:"data:image/png;base64,iVBORw0KGgo=",sizes:"192x192",type:"image/png"}]};
+G('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
+
+
+/* ═══════════════════════════════════════
+   PROJECT MANAGEMENT
+═══════════════════════════════════════ */
+function saveProjects(){localStorage.setItem('cf_projects',JSON.stringify(projects));}
+
+function renderProjects() {
+  const el=G('proj-list');
+  if(!projects.length){
+    el.innerHTML=`<div class="empty">
+      <div class="empty-icon">🏗️</div>
+      <div class="empty-title">Nenhuma obra cadastrada</div>
+      <div class="empty-desc">Toque no botão + abaixo para cadastrar sua primeira obra ou empreendimento</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML=projects.map(p=>{
+    const pr=records.filter(r=>r.projectId===p.id);
+    const nc=pr.filter(r=>r.hasNC).length;
+    const sClass={'Em Andamento':'status-andamento','Concluída':'status-concluida','Suspensa':'status-suspensa'}[p.status]||'status-andamento';
+    const today=new Date().toISOString().split('T')[0];
+    const hoje=pr.filter(r=>r.data===today).length;
+    return `<div class="proj-card">
+      <div class="proj-card-body" onclick="enterProject('${p.id}')">
+        <div class="proj-card-top">
+          <div class="proj-card-icon">🏗️</div>
+          <div class="proj-card-info">
+            <div class="proj-card-name">${p.nome}</div>
+            ${p.cliente?`<div class="proj-card-cliente">👤 ${p.cliente}</div>`:''}
+            <div class="proj-card-meta">
+              ${p.tipo?`<span>🏢 ${p.tipo}</span>`:''}
+              ${p.local?`<span>📍 ${p.local}</span>`:''}
+              ${p.rt?`<span>👷 ${p.rt}</span>`:''}
+              ${p.art?`<span>📋 ART ${p.art}</span>`:''}
+            </div>
+          </div>
+        </div>
+        <div class="proj-card-stat">
+          <div class="proj-stat-item"><div class="proj-stat-v">${pr.length}</div><div class="proj-stat-l">Estacas</div></div>
+          <div class="proj-stat-item"><div class="proj-stat-v" style="color:var(--green)">${hoje}</div><div class="proj-stat-l">Hoje</div></div>
+          <div class="proj-stat-item"><div class="proj-stat-v" style="color:${nc?'var(--red)':'var(--g400)'}">${nc||'—'}</div><div class="proj-stat-l">N.Conf.</div></div>
+          <div class="proj-stat-item" style="flex:none;padding:6px 12px"><span class="status-tag ${sClass}">${p.status||'Em Andamento'}</span></div>
+        </div>
+      </div>
+      <div class="proj-card-actions" style="z-index:2" onclick="event.stopPropagation()">
+        <button class="proj-action-btn" onclick="editProject('${p.id}')" title="Editar">✏️</button>
+        <button class="proj-action-btn" onclick="deleteProject('${p.id}')" title="Excluir">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openProjForm(id) {
+  projEditId = id || null;
+  G('pf-edit-id').value = id || '';
+  if(id) {
+    const p=projects.find(x=>x.id===id);
+    G('pf-nome').value=p.nome||'';
+    G('pf-cliente').value=p.cliente||'';
+    G('pf-tipo').value=p.tipo||'';
+    G('pf-status').value=p.status||'Em Andamento';
+    G('pf-local').value=p.local||'';
+    G('pf-rt').value=p.rt||'';
+    G('pf-art').value=p.art||'';
+    G('pf-inicio').value=p.inicio||'';
+    G('pf-termino').value=p.termino||'';
+    G('pf-obs').value=p.obs||'';
+    G('proj-modal-title').textContent='Editar Obra';
+  } else {
+    ['pf-nome','pf-cliente','pf-local','pf-rt','pf-art','pf-inicio','pf-termino','pf-obs'].forEach(id=>G(id).value='');
+    G('pf-tipo').value='';
+    G('pf-status').value='Em Andamento';
+    G('proj-modal-title').textContent='Nova Obra';
+  }
+  G('proj-modal').classList.add('show');
+  setTimeout(()=>G('pf-nome').focus(),200);
+}
+
+function closeProjForm() { G('proj-modal').classList.remove('show'); }
+
+function saveProjForm() {
+  const nome=G('pf-nome').value.trim();
+  if(!nome){showToast('⚠️ Informe o nome da obra');return;}
+  const editId=G('pf-edit-id').value;
+  const p={
+    id:editId||Date.now().toString(),
+    nome, cliente:gv('pf-cliente'), tipo:gv('pf-tipo'),
+    status:gv('pf-status')||'Em Andamento', local:gv('pf-local'),
+    rt:gv('pf-rt'), art:gv('pf-art'), inicio:gv('pf-inicio'),
+    termino:gv('pf-termino'), obs:gv('pf-obs'),
+    createdAt: editId ? (projects.find(x=>x.id===editId)||{}).createdAt : new Date().toISOString()
+  };
+  if(editId) projects=projects.map(x=>x.id===editId?p:x);
+  else projects.push(p);
+  saveProjects();
+  closeProjForm();
+  renderProjects();
+  showToast(editId?'✅ Obra atualizada!':'✅ Obra cadastrada!');
+}
+
+function editProject(id){ openProjForm(id); }
+
+function deleteProject(id) {
+  const p=projects.find(x=>x.id===id);
+  const cnt=records.filter(r=>r.projectId===id).length;
+  if(!confirm(`Excluir a obra "${p?.nome}"?${cnt?' Isso removerá também '+cnt+' registro(s) de estaca associado(s).':''}`)) return;
+  projects=projects.filter(x=>x.id!==id);
+  records=records.filter(r=>r.projectId!==id);
+  saveProjects(); save();
+  renderProjects();
+  showToast('🗑️ Obra excluída');
+}
+
+/* ═══════════════════════════════════════
+   TORQUE TABLE KEYBOARD NAVIGATION
+═══════════════════════════════════════ */
+function tqNav(e, row, col) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  let nextId;
+  if (col === 'tq') {
+    nextId = 'f-pr-' + row;
+  } else {
+    const nextRow = row + 1;
+    if (nextRow > 32) return;
+    nextId = 'f-tq-' + nextRow;
+  }
+  const el = G(nextId);
+  if (el) { el.focus(); el.select(); }
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+showProjectsScreen();
+</script>
+</body>
+</html>
